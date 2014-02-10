@@ -2,18 +2,18 @@
 
 
 class Action
-  attr_reader :name, :card_type, :action_type, :text, :power_invoke
+  attr_reader :name, :card_type, :action_type, :text, :invoke_types
   
-  def initialize(name, card_type, action_type, text, power_invoke = [])
+  def initialize(name, card_type, action_type, text, invoke_types = [])
     @name = name
     @card_type = card_type
     @action_type = action_type
     @text = text
-    @power_invoke = power_invoke
+    @invoke_types = invoke_types
   end
   
   def invokable?
-    return power_invoke.length != 0
+    return invoke_types.length != 0
   end
   
   def to_s
@@ -34,9 +34,9 @@ end
 
 class ActionChainGenerator
   attr_reader :chains
+  
   def initialize(action_list, invoke_types = [:Power])
     @action_list = action_list
-    @chains = []
     @invoke_types = invoke_types
   end
   
@@ -47,6 +47,11 @@ class ActionChainGenerator
       out_str += "Chain " + (index + 1).to_s + ":\n" + chain.to_s
     end
     out_str
+  end
+  
+  def chains 
+    generate_chains if @chains.nil?
+    @chains
   end
   
   def generate_chains
@@ -63,8 +68,8 @@ class ActionChainGenerator
   end
   
   def invoke_action(action)
-    next_action_list = @action_list.reject { | x | x == action }
-    next_act_chain = ActionChainGenerator.new(next_action_list, action.power_invoke)
+    action_list_minus_current = @action_list.reject { | x | x == action }
+    next_act_chain = ActionChainGenerator.new(action_list_minus_current, action.invoke_types)
     next_act_chain.generate_chains
     if next_act_chain.chains.length == 0 then
       @chains << ActionChain.new([action])
