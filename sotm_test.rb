@@ -36,6 +36,15 @@ class TestAction< Test::Unit::TestCase
     assert(possible_actions.include?(ActionSet.get_by_name("Rhapsody of Vigor")[0]))
     assert(possible_actions.include?(ActionSet.get_by_name("Sarabande of Destruction")[0]))
   end
+  
+  def test_invoke_on_single_action
+    action_list = ActionSet.get_by_name("Rhapsody of Vigor") 
+    action = ActionSet.get_by_name("The Ardent Adept")[0]
+    chains_from_action = action.invoke_on(action_list)
+    assert_equal(1, chains_from_action.length)
+    assert_equal(1, chains_from_action[0].length)
+    assert(chains_from_action[0][0] == action_list[0])
+  end
 end
 
 

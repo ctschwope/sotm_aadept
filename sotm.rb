@@ -23,6 +23,10 @@ class Action
   def actions_from_invoke_on(action_list)
     invokable_actions = action_list.find_all {|x| @invoke_types.include?(x.action_type)}
   end
+  
+  def invoke_on(action_list)
+  
+  end
 end
 
 class ActionChain < Array
@@ -89,8 +93,8 @@ class ActionSet
   
   def self.init_action_list
     @actions = []
-    @actions << Action.new("Rhapsody of Vigor", :Melody, :Perform, "Up to 5 targets regain 1 HP each")
     @actions << Action.new("The Ardent Adept", :Character, :Power, "Execute Perform text on a card", [:Perform])
+    @actions << Action.new("Rhapsody of Vigor", :Melody, :Perform, "Up to 5 targets regain 1 HP each")
     @actions << Action.new("Syncopated Onslaught", :Rhythm, :Perform, "Select up to 2 targets. until the start of your next turn increase damage death bu those targets by 1")
     @actions << Action.new("Syncopated Onslaught", :Rhythm, :Accompany, "The ardent adept deals 1 target 1 sonic damage")
     @actions << Action.new("Sarabande of Destruction", :Melody, :Perform, "Destroy 1 ongoing or environment card")
