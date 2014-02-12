@@ -19,6 +19,10 @@ class Action
   def to_s
     @name + ", " + @card_type.to_s + ", " + @action_type.to_s + ", " + text 
   end
+  
+  def actions_from_invoke_on(action_list)
+    invokable_actions = action_list.find_all {|x| @invoke_types.include?(x.action_type)}
+  end
 end
 
 class ActionChain < Array
