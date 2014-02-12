@@ -6,6 +6,7 @@ class TestAction< Test::Unit::TestCase
   def setup
     @action = ActionSet.get_by_name("Rhapsody of Vigor")[0]
   end
+  
   def test_initialize_not_power
     assert_equal(:Melody, @action.card_type)
     assert_equal(:Perform, @action.action_type)
@@ -45,6 +46,18 @@ class TestAction< Test::Unit::TestCase
     assert_equal(1, chains_from_action[0].length)
     assert(chains_from_action[0][0] == action_list[0])
   end
+  
+  def test_invoke_on_double_action
+    action_list = ActionSet.get_by_name("Rhapsody of Vigor") + ActionSet.get_by_name("Sarabande of Destruction")
+    action = ActionSet.get_by_name("The Ardent Adept")[0]
+    chains_from_action = action.invoke_on(action_list)
+    assert_equal(2, chains_from_action.length)
+    assert_equal(1, chains_from_action[0].length)
+    assert_equal(1, chains_from_action[1].length)
+    assert(chains_from_action[0][0] == ActionSet.get_by_name("Rhapsody of Vigor")[0])
+    assert(chains_from_action[1][0] == ActionSet.get_by_name("Sarabande of Destruction")[0])
+  end
+
 end
 
 

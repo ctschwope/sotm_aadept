@@ -21,11 +21,16 @@ class Action
   end
   
   def actions_from_invoke_on(action_list)
-    invokable_actions = action_list.find_all {|x| @invoke_types.include?(x.action_type)}
+    action_list.find_all {|x| @invoke_types.include?(x.action_type)}
   end
   
   def invoke_on(action_list)
-  
+    chains = []
+    invokable_actions = actions_from_invoke_on(action_list)
+    invokable_actions.each do |action|
+      chains << [action]
+    end
+    chains
   end
 end
 
@@ -116,7 +121,6 @@ def SingleRun
     @actionHolder = ActionHolder.new
     @powers = @actionHolder.actions.find_all {|x| x.action_type = :Power }
     @usedPowers = []
-
   end
 
   def GetRunString
