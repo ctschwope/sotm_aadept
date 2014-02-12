@@ -73,7 +73,8 @@ class ActionChainGenerator
     invokable_actions = @action_list.find_all {|x| @invoke_types.include?(x.action_type) }
     invokable_actions.each do | action | 
       if action.invokable? 
-        invoke_action(action)
+        @chains << action.invoke_on(@action_list.reject { | x | x == action })
+        #invoke_action(action)
       else
         @chains << ActionChain.new([action])
       end
