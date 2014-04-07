@@ -16,13 +16,13 @@ class TestAction< Test::Unit::TestCase
     assert(!@action.invokable?)
   end
   def test_initialize_power
-    @action = Action.new("The Ardent Adept", :Character, :Power, "Execute Perform text on a card", [:Perform])
+    @action = Action.new("The Ardent Adept", :Character, :Power, "Execute Perform text on a card", [InvokeType.new(:Perform)])
     @action = ActionSet.get_by_name("The Ardent Adept")[0]
     assert_equal(:Character, @action.card_type)
     assert_equal(:Power, @action.action_type)
     assert_equal("The Ardent Adept", @action.name)
     assert_equal("Execute Perform text on a card", @action.text)
-    assert_equal([:Perform], @action.invoke_types)
+    assert_equal(:Perform, @action.invoke_types[0].type)
     assert(@action.invokable?)
   end
   def test_to_s
@@ -82,18 +82,26 @@ class TestActionChainGenerator < Test::Unit::TestCase
     assert_equal("Chain 1:\n  The Ardent Adept, Character, Power, Execute Perform text on a card\n", actionChainGenerator.to_s)
   end
   
-  def test_char_power_to_single_perform
+  def test_char_power_to_one_perform
     action_list = ActionSet.get_by_name("Rhapsody of Vigor") +  ActionSet.get_by_name("The Ardent Adept")
     actionChainGenerator = ActionChainGenerator.new(action_list, @initial_invoke)
     assert_equal(1, actionChainGenerator.chains.length)
+    
+    print "\n"
+    print actionChainGenerator.chains[0]
+    print "\n"
+    
     assert_equal(2, actionChainGenerator.chains[0].length)
+    
+    
+    
     assert_equal("Chain 1:\n" + 
                  "  The Ardent Adept, Character, Power, Execute Perform text on a card\n" +
                  "  Rhapsody of Vigor, Melody, Perform, Up to 5 targets regain 1 HP each\n", actionChainGenerator.to_s)
 
   end
   
-  def test_char_power_to_double_perform
+  def test_char_power_to_two_perform
     action_list = ActionSet.get_by_name("Rhapsody of Vigor") + ActionSet.get_by_name("The Ardent Adept") + ActionSet.get_by_name("Sarabande of Destruction")
     actionChainGenerator = ActionChainGenerator.new(action_list, @initial_invoke)
     assert_equal(2, actionChainGenerator.chains.length, "number of chains should be 2")
@@ -106,7 +114,6 @@ class TestActionChainGenerator < Test::Unit::TestCase
                  "  The Ardent Adept, Character, Power, Execute Perform text on a card\n" +
                  "  Sarabande of Destruction, Melody, Perform, Destroy 1 ongoing or environment card\n" 
     assert_equal(string_val, actionChainGenerator.to_s)
-
   end
   
 end

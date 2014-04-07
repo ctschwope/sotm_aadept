@@ -21,7 +21,13 @@ class Action
   end
   
   def actions_from_invoke_on(action_list)
-    action_list.find_all {|x| @invoke_types.include?(x.action_type)}
+    @out_list = []
+    action_list.each do | action | 
+      @invoke_types.each do | invoke | 
+        @out_list << action if (invoke.type == action.action_type and (invoke.sub_type == :Any or invoke.sub_type == action.card_type))
+      end
+    end
+    #action_list.find_all {|x| @invoke_types.include?(x.action_type)}
   end
   
   def invoke_on(action_list)
@@ -31,6 +37,19 @@ class Action
       chains << [action]
     end
     chains
+  end
+end
+
+class InvokeType
+  attr_reader :type, :sub_type
+  
+  def initialize(type, sub_type = :Any)
+    @type = type
+    @sub_type = sub_type
+  end
+  
+  def to_s
+    @type.to_s + " - " + @sub_type.to_s
   end
 end
 
@@ -98,11 +117,12 @@ class ActionSet
   
   def self.init_action_list
     @actions = []
-    @actions << Action.new("The Ardent Adept", :Character, :Power, "Execute Perform text on a card", [:Perform])
+    @actions << Action.new("The Ardent Adept", :Character, :Power, "Execute Perform text on a card", [InvokeType.new(:Perform)])
     @actions << Action.new("Rhapsody of Vigor", :Melody, :Perform, "Up to 5 targets regain 1 HP each")
     @actions << Action.new("Syncopated Onslaught", :Rhythm, :Perform, "Select up to 2 targets. until the start of your next turn increase damage death bu those targets by 1")
     @actions << Action.new("Syncopated Onslaught", :Rhythm, :Accompany, "The ardent adept deals 1 target 1 sonic damage")
     @actions << Action.new("Sarabande of Destruction", :Melody, :Perform, "Destroy 1 ongoing or environment card")
+    #@actions << Action.new("Drake's Pipes", :Instrument, :Power, "Activate the Perform text of up to 2 different Melody cards")
   end
   
   def to_s
