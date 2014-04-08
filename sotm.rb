@@ -1,43 +1,39 @@
 
+# powers invoke actions (1 or 2)
+# an action may queue up a power
+# lets make those seperate things
 
+
+class Power
+  attr_reader :name, :card_type, :text, :invoke_types
+  
+  def initialize(name, card_type, text, invoke_types = [])
+    @name = name
+    @card_type = card_type
+    @text = text
+    @invoke_types = invoke_types
+  end
+
+  def to_s
+    @name + ", " + @card_type.to_s + ", " + text 
+  end
+
+end
 
 class Action
   attr_reader :name, :card_type, :action_type, :text, :invoke_types
   
-  def initialize(name, card_type, action_type, text, invoke_types = [])
+  def initialize(name, card_type, action_type, text)
     @name = name
     @card_type = card_type
     @action_type = action_type
     @text = text
-    @invoke_types = invoke_types
-  end
-  
-  def invokable?
-    return invoke_types.length != 0
   end
   
   def to_s
     @name + ", " + @card_type.to_s + ", " + @action_type.to_s + ", " + text 
   end
   
-  def actions_from_invoke_on(action_list)
-    @out_list = []
-    action_list.each do | action | 
-      @invoke_types.each do | invoke | 
-        @out_list << action if (invoke.type == action.action_type and (invoke.sub_type == :Any or invoke.sub_type == action.card_type))
-      end
-    end
-    #action_list.find_all {|x| @invoke_types.include?(x.action_type)}
-  end
-  
-  def invoke_on(action_list)
-    chains = []
-    invokable_actions = actions_from_invoke_on(action_list)
-    invokable_actions.each do |action|
-      chains << [action]
-    end
-    chains
-  end
 end
 
 class InvokeType
@@ -67,7 +63,7 @@ end
 class ActionChainGenerator
   attr_reader :chains
   
-  def initialize(action_list, invoke_types = [:Power])
+  def initialize(action_list, invoke_types = [InvokeType.new(:Power)])
     @action_list = action_list
     @invoke_types = invoke_types
   end
@@ -89,6 +85,7 @@ class ActionChainGenerator
   def generate_chains
     @chains = []
     return if @action_list.length == 0
+   
     invokable_actions = @action_list.find_all {|x| @invoke_types.include?(x.action_type) }
     invokable_actions.each do | action | 
       if action.invokable? 
@@ -112,26 +109,24 @@ class ActionChainGenerator
 end
 
 
-
-class ActionSet
-  
+class CardFactory
   def self.init_action_list
-    @actions = []
-    @actions << Action.new("The Ardent Adept", :Character, :Power, "Execute Perform text on a card", [InvokeType.new(:Perform)])
-    @actions << Action.new("Rhapsody of Vigor", :Melody, :Perform, "Up to 5 targets regain 1 HP each")
-    @actions << Action.new("Syncopated Onslaught", :Rhythm, :Perform, "Select up to 2 targets. until the start of your next turn increase damage death bu those targets by 1")
-    @actions << Action.new("Syncopated Onslaught", :Rhythm, :Accompany, "The ardent adept deals 1 target 1 sonic damage")
-    @actions << Action.new("Sarabande of Destruction", :Melody, :Perform, "Destroy 1 ongoing or environment card")
+    @cards = []
+    @cards << Power.new("The Ardent Adept", :Character, "Execute Perform text on a card", [InvokeType.new(:Perform)])
+    @cards << Action.new("Rhapsody of Vigor", :Melody, :Perform, "Up to 5 targets regain 1 HP each")
+    @cards << Action.new("Syncopated Onslaught", :Rhythm, :Perform, "Select up to 2 targets. until the start of your next turn increase damage death bu those targets by 1")
+    @cards << Action.new("Syncopated Onslaught", :Rhythm, :Accompany, "The ardent adept deals 1 target 1 sonic damage")
+    @cards << Action.new("Sarabande of Destruction", :Melody, :Perform, "Destroy 1 ongoing or environment card")
     #@actions << Action.new("Drake's Pipes", :Instrument, :Power, "Activate the Perform text of up to 2 different Melody cards")
   end
   
   def to_s
-    @actions.join("\n") 
+    @cards.join("\n") 
   end
   
   def self.get_by_name(name)
     init_action_list if @actions.nil?
-    @actions.find_all {|x| x.name == name }
+    @cards.find_all {|x| x.name == name }
   end
 end
 
