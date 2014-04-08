@@ -87,60 +87,56 @@ class TestActionChainGenerator < Test::Unit::TestCase
                  "  The Ardent Adept, Character, Execute Perform text on a card\n" +
                  "  Rhapsody of Vigor, Melody, Perform, Up to 5 targets regain 1 HP each\n", actionChainGenerator.to_s)
   end
-  
-  
-  
-  # def setup
-    # @initial_invoke = [:Power]
-  # end
-  
-  # def test_empty_action_list
-    # actionChainGenerator = ActionChainGenerator.new([])
-    # assert_equal(0, actionChainGenerator.chains.length)
-    # assert_equal("No Chains Found", actionChainGenerator.to_s)
-  # end
-  
-  # def test_one_power_list
-    # action_list = CardFactory.get_by_name("The Ardent Adept")
-    # actionChainGenerator = ActionChainGenerator.new(action_list, @initial_invoke)
-    # assert_equal(1, actionChainGenerator.chains.length)
-    # assert_equal(1, actionChainGenerator.chains[0].length)
-    # assert_equal("Chain 1:\n  The Ardent Adept, Character, Power, Execute Perform text on a card\n", actionChainGenerator.to_s)
-  # end
-  
-  # def test_char_power_to_one_perform
-    # action_list = CardFactory.get_by_name("Rhapsody of Vigor") +  CardFactory.get_by_name("The Ardent Adept")
-    # actionChainGenerator = ActionChainGenerator.new(action_list, @initial_invoke)
-    # assert_equal(1, actionChainGenerator.chains.length)
-    
-    # print "\n"
-    # print actionChainGenerator.chains[0]
-    # print "\n"
-    
-    # assert_equal(2, actionChainGenerator.chains[0].length)
-       
-    
-    # assert_equal("Chain 1:\n" + 
-                 # "  The Ardent Adept, Character, Power, Execute Perform text on a card\n" +
-                 # "  Rhapsody of Vigor, Melody, Perform, Up to 5 targets regain 1 HP each\n", actionChainGenerator.to_s)
 
-  # end
+  def test_base_power_double_card_action
+    powers = [CardFactory.get_by_name("The Ardent Adept")[0]]
+    actions = [CardFactory.get_by_name("Rhapsody of Vigor")[0], CardFactory.get_by_name("Sarabande of Destruction")[0]]
+    actionChainGenerator = ActionChainGenerator.new(powers, actions)
+    assert_equal(2, actionChainGenerator.chains.length, "There should be a two action chains")
+    action_chain = actionChainGenerator.chains[0]
+    assert_equal(2, action_chain.length, "First Action chain should have two items")
+    action_chain = actionChainGenerator.chains[1]
+    assert_equal(2, action_chain.length, "Second Action chain should have two items")
+    string_val = "Chain 1:\n" + 
+                 "  The Ardent Adept, Character, Execute Perform text on a card\n" +
+                 "  Rhapsody of Vigor, Melody, Perform, Up to 5 targets regain 1 HP each\n" +
+                 "Chain 2:\n" + 
+                 "  The Ardent Adept, Character, Execute Perform text on a card\n" +
+                 "  Sarabande of Destruction, Melody, Perform, Destroy 1 ongoing or environment card\n" 
+    assert_equal( string_val, actionChainGenerator.to_s)               
+  end
   
-  # def test_char_power_to_two_perform
-    # action_list = CardFactory.get_by_name("Rhapsody of Vigor") + CardFactory.get_by_name("The Ardent Adept") + CardFactory.get_by_name("Sarabande of Destruction")
-    # actionChainGenerator = ActionChainGenerator.new(action_list, @initial_invoke)
-    # assert_equal(2, actionChainGenerator.chains.length, "number of chains should be 2")
-    # assert_equal(2, actionChainGenerator.chains[0].length, "first chain length should be 2")
-    # assert_equal(2, actionChainGenerator.chains[1].length, "second chain length should be 2")
-    # string_val = "Chain 1:\n" + 
-                 # "  The Ardent Adept, Character, Power, Execute Perform text on a card\n" +
-                 # "  Rhapsody of Vigor, Melody, Perform, Up to 5 targets regain 1 HP each\n" +
-                 # "Chain 2:\n" + 
-                 # "  The Ardent Adept, Character, Power, Execute Perform text on a card\n" +
-                 # "  Sarabande of Destruction, Melody, Perform, Destroy 1 ongoing or environment card\n" 
-    # assert_equal(string_val, actionChainGenerator.to_s)
-  # end
-  
+  def test_base_power_with_card_perf_and_accomp
+    powers = [CardFactory.get_by_name("The Ardent Adept")[0]]
+    actions = [] + CardFactory.get_by_name("Syncopated Onslaught")
+    actionChainGenerator = ActionChainGenerator.new(powers, actions)
+    assert_equal(1, actionChainGenerator.chains.length, "There should be a single action chain")
+    action_chain = actionChainGenerator.chains[0]
+    assert_equal(2, action_chain.length, "Action chain should have two items")
+    assert_equal("Chain 1:\n" + 
+                 "  The Ardent Adept, Character, Execute Perform text on a card\n" +
+                 "  Syncopated Onslaught, Rhythm, Perform, Select up to 2 targets. until the start of your next turn increase damage death by those targets by 1\n", 
+                 actionChainGenerator.to_s)
+  end
+
+  def test_base_power_with_card_perf_and_accomp_plus_another
+    powers = [CardFactory.get_by_name("The Ardent Adept")[0]] 
+    actions = [] + CardFactory.get_by_name("Syncopated Onslaught")  + CardFactory.get_by_name("Sarabande of Destruction")
+    actionChainGenerator = ActionChainGenerator.new(powers, actions)
+    assert_equal(2, actionChainGenerator.chains.length, "There should be a two action chains")
+    action_chain = actionChainGenerator.chains[0]
+    assert_equal(2, action_chain.length, "First Action chain should have two items")
+    action_chain = actionChainGenerator.chains[1]
+    assert_equal(2, action_chain.length, "Second Action chain should have two items")
+    string_val = "Chain 1:\n" + 
+                 "  The Ardent Adept, Character, Execute Perform text on a card\n" +
+                 "  Syncopated Onslaught, Rhythm, Perform, Select up to 2 targets. until the start of your next turn increase damage death by those targets by 1\n" +
+                 "Chain 2:\n" + 
+                 "  The Ardent Adept, Character, Execute Perform text on a card\n" +
+                 "  Sarabande of Destruction, Melody, Perform, Destroy 1 ongoing or environment card\n" 
+    assert_equal( string_val, actionChainGenerator.to_s)               
+  end
+
 end
 
 

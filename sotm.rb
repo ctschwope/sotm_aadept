@@ -117,12 +117,23 @@ class CardFactory
   def self.init_action_list
     @cards = []
     @cards << Power.new("The Ardent Adept", :Character, "Execute Perform text on a card", [Invoke.new(:Perform)])
+    # @cards << Power.new("Drake's Pipes", :Instrument, "Activate the Perform text of up to 2 different Melody cards", 
+                            # [Invoke.new(:Perform,:Harmony), Invoke.new(:Perform,:Harmony)]))
+    # @cards << Power.new("Eydisar's Horn", :Instrument, "Activate the Perform text on a Melody Card and activate the Accompany text on a Harmony Card", 
+                            # [Invoke.new(:Perform,:Melody), Invoke.new(:Accompany,:Harmony)])
+    # @cards << Power.new("Xu's Bell", :Instrument, "Activate the Perform text on a Rythm Card and activate the Accompany text on either a Harmony or Rhythm Card", 
+                            # [Invoke.new(:Perform,:Rhythm), Invoke.new(:Accompany,:HarmonyRythm)])
+    @cards << Power.new("Musargni's Harp", :Instrument, "Activate the Perform text on a Harmony Card and activate the Accompany text on a Harmony Card", 
+                            [Invoke.new(:Perform,:Harmony), Invoke.new(:Accompany,:Harmony)])
+    # @cards << Power.new("Telamon's Lyra", :Instrument, "Activate the Perform text on a Harmony Card and activate the Accompany text on a Rhythm Card", 
+                            # [Invoke.new(:Perform,:Harmony), Invoke.new(:Accompany,:Rythm)])
+    # @cards << Power.new("Akpunku's Drum", :Instrument, "Activate the Perform text on a Melody Card and activate the Accompany text on a Rhythm Card", 
+                            # [Invoke.new(:Perform,:Melody), Invoke.new(:Accompany,:Rythm)])
+                            
     @cards << Action.new("Rhapsody of Vigor", :Melody, :Perform, "Up to 5 targets regain 1 HP each")
-    @cards << Action.new("Syncopated Onslaught", :Rhythm, :Perform, "Select up to 2 targets. until the start of your next turn increase damage death bu those targets by 1")
-    @cards << Action.new("Syncopated Onslaught", :Rhythm, :Accompany, "The ardent adept deals 1 target 1 sonic damage")
     @cards << Action.new("Sarabande of Destruction", :Melody, :Perform, "Destroy 1 ongoing or environment card")
-    #@actions << Action.new("Drake's Pipes", :Instrument, :Power, "Activate the Perform text of up to 2 different Melody cards")
-    @cards << Power.new("Musargni's Harp", :Instrument, "Activate the Perform text on a Harmony Card and activate the Accompany text on a Harmony Card", [Invoke.new(:Perform,:Harmony), Invoke.new(:Accompany,:Harmony)])
+    @cards << Action.new("Syncopated Onslaught", :Rhythm, :Perform, "Select up to 2 targets. until the start of your next turn increase damage death by those targets by 1")
+    @cards << Action.new("Syncopated Onslaught", :Rhythm, :Accompany, "The ardent adept deals 1 target 1 sonic damage")
   end
   
   def to_s
