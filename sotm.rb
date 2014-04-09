@@ -49,7 +49,7 @@ class Invoke
   end
   
   def to_s
-    @type.to_s + " - " + @sub_type.to_s
+    @action_type.to_s + " - " + @card_type.to_s
   end
 end
 
@@ -92,6 +92,7 @@ class ActionChainGenerator
     
     # assuming single power for a second
     power = @power_list[0]
+
     invokable_actions = @action_list.find_all {| action | action.invokable_by?(power.invokes[0]) }
     
     invokable_actions.each do | action |
@@ -116,24 +117,45 @@ end
 class CardFactory
   def self.init_action_list
     @cards = []
-    @cards << Power.new("The Ardent Adept", :Character, "Execute Perform text on a card", [Invoke.new(:Perform)])
-    # @cards << Power.new("Drake's Pipes", :Instrument, "Activate the Perform text of up to 2 different Melody cards", 
-                            # [Invoke.new(:Perform,:Harmony), Invoke.new(:Perform,:Harmony)]))
-    # @cards << Power.new("Eydisar's Horn", :Instrument, "Activate the Perform text on a Melody Card and activate the Accompany text on a Harmony Card", 
-                            # [Invoke.new(:Perform,:Melody), Invoke.new(:Accompany,:Harmony)])
-    # @cards << Power.new("Xu's Bell", :Instrument, "Activate the Perform text on a Rythm Card and activate the Accompany text on either a Harmony or Rhythm Card", 
-                            # [Invoke.new(:Perform,:Rhythm), Invoke.new(:Accompany,:HarmonyRythm)])
-    @cards << Power.new("Musargni's Harp", :Instrument, "Activate the Perform text on a Harmony Card and activate the Accompany text on a Harmony Card", 
+    @cards << Power.new("The Ardent Adept", :Character, "Execute Perform text on a card.", [Invoke.new(:Perform)])
+    @cards << Power.new("Drake's Pipes", :Instrument, "Activate the Perform text of up to 2 different Melody cards.", 
+                            [Invoke.new(:Perform,:Harmony), Invoke.new(:Perform,:Harmony)])
+    @cards << Power.new("Eydisar's Horn", :Instrument, "Activate the Perform text on a Melody Card and the Accompany text on a Harmony Card.", 
+                            [Invoke.new(:Perform,:Melody), Invoke.new(:Accompany,:Harmony)])
+    @cards << Power.new("Xu's Bell", :Instrument, "Activate the Perform text on a Rythm Card and the Accompany text on either a Harmony or Rhythm Card.", 
+                            [Invoke.new(:Perform,:Rhythm), Invoke.new(:Accompany,:HarmonyRythm)])
+    @cards << Power.new("Musargni's Harp", :Instrument, "Activate the Perform text on a Harmony Card and the Accompany text on a Harmony Card.", 
                             [Invoke.new(:Perform,:Harmony), Invoke.new(:Accompany,:Harmony)])
-    # @cards << Power.new("Telamon's Lyra", :Instrument, "Activate the Perform text on a Harmony Card and activate the Accompany text on a Rhythm Card", 
-                            # [Invoke.new(:Perform,:Harmony), Invoke.new(:Accompany,:Rythm)])
-    # @cards << Power.new("Akpunku's Drum", :Instrument, "Activate the Perform text on a Melody Card and activate the Accompany text on a Rhythm Card", 
-                            # [Invoke.new(:Perform,:Melody), Invoke.new(:Accompany,:Rythm)])
+    @cards << Power.new("Telamon's Lyra", :Instrument, "Activate the Perform text on a Harmony Card and the Accompany text on a Rhythm Card.", 
+                            [Invoke.new(:Perform,:Harmony), Invoke.new(:Accompany,:Rythm)])
+    @cards << Power.new("Akpunku's Drum", :Instrument, "Activate the Accompany text on a Rhythm Card and the Perform text on a Melody Card.", 
+                            [Invoke.new(:Accompany,:Rythm), Invoke.new(:Perform,:Melody)])
                             
-    @cards << Action.new("Rhapsody of Vigor", :Melody, :Perform, "Up to 5 targets regain 1 HP each")
-    @cards << Action.new("Sarabande of Destruction", :Melody, :Perform, "Destroy 1 ongoing or environment card")
-    @cards << Action.new("Syncopated Onslaught", :Rhythm, :Perform, "Select up to 2 targets. until the start of your next turn increase damage death by those targets by 1")
-    @cards << Action.new("Syncopated Onslaught", :Rhythm, :Accompany, "The ardent adept deals 1 target 1 sonic damage")
+    @cards << Action.new("Rhapsody of Vigor", :Melody, :Perform, "Up to 5 targets regain 1 HP each.")
+
+    @cards << Action.new("Sarabande of Destruction", :Melody, :Perform, "Destroy 1 ongoing or environment card.")
+
+    @cards << Action.new("Syncopated Onslaught", :Rhythm, :Perform, "Select up to 2 targets. Until the start of your next turn increase damage death by those targets by 1.")
+    @cards << Action.new("Syncopated Onslaught", :Rhythm, :Accompany, "The Ardent Adept deals 1 target 1 sonic damage.")
+
+    @cards << Action.new("Alacritous Subdominant", :Harmony, :Perform, "One player may play 1 card now.")
+    @cards << Action.new("Alacritous Subdominant", :Harmony, :Accompany, "You may use a power now. If you do, destroy this card.")
+
+    @cards << Action.new("Inspiring Supertonic", :Harmony, :Perform, "One player may us a power now.")
+    @cards << Action.new("Inspiring Supertonic", :Harmony, :Accompany, "The Ardent Adept regains 2 HP.")
+
+    @cards << Action.new("Scherzo of Frost and Flame", :Melody, :Perform, "The Ardent Adept deals one target 1 cold damage, then deals 1 target 1 fire damage.") 
+
+    @cards << Action.new("Inventive preparation", :Rhythm, :Perform, "Each player may look at the top card of their hero deck then replace or discard it.")
+    @cards << Action.new("Inventive preparation", :Rhythm, :Accompany, "One player other than you may play 1 card now.")
+
+    @cards << Action.new("Cedistic Dissonant", :Harmony, :Perform, "Destroy an instrument. If you do, destroy and 1 card in play other than a character card.")
+    @cards << Action.new("Cedistic Dissonant", :Harmony, :Accompany, "Discard 2 cards. Draw 3 cards.")
+
+    @cards << Action.new("Counterpoint Bulwark", :Rhythm, :Perform, "Select up to 2 targets. Until start of your next turn, reduce damage death to those targets by 1.")
+    @cards << Action.new("Counterpoint Bulwark", :Rhythm, :Accompany, "One player may draw 1 card now.")
+
+
   end
   
   def to_s
