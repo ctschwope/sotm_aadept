@@ -225,7 +225,7 @@ class TestActionChainGenerator < Test::Unit::TestCase
     assert_equal( string_val, actionChainGenerator.to_s)               
   end
 
-  def test_one_power_with_two_invokes
+  def test_one_power_with_two_invokes_drake_pipe_details
     powers = [] + CardFactory.get_by_name("Drake's Pipes") 
     actions = [] + CardFactory.get_by_name("Sarabande of Destruction")
     actionChainGenerator = ActionChainGenerator.new(powers, actions)
@@ -234,19 +234,17 @@ class TestActionChainGenerator < Test::Unit::TestCase
     assert_equal(3, action_chain.length, "First Action chain should have four items")
     string_val = "Chain 1:\n" + 
                  "  " + CardFactory.get_by_name("Drake's Pipes")[0].to_s + "\n" +
-                 "    " + CardFactory.get_by_name("Sarabande of Destruction")[0].to_s + "\n" +
-                 "    " + CardFactory.get_by_name("Sarabande of Destruction")[0].to_s + "\n"
+                 "    " + CardFactory.get_by_name("Sarabande of Destruction")[0].to_s + "\n" 
     assert_equal( string_val, actionChainGenerator.to_s)
   end
   
-  def test_two_power_with_two_invokes
+  def test_two_power_with_two_invokes_drake_pipe_details
     powers = [] + CardFactory.get_by_name("Drake's Pipes") + CardFactory.get_by_name("The Ardent Adept")
     actions = [] + CardFactory.get_by_name("Sarabande of Destruction")
     actionChainGenerator = ActionChainGenerator.new(powers, actions)
     assert_equal(2, actionChainGenerator.chains.length, "There should be a two action chains")
     string_val = "Chain 1:\n" + 
                  "  " + CardFactory.get_by_name("Drake's Pipes")[0].to_s + "\n" +
-                 "    " + CardFactory.get_by_name("Sarabande of Destruction")[0].to_s + "\n" +
                  "    " + CardFactory.get_by_name("Sarabande of Destruction")[0].to_s + "\n" +
                 "Chain 2:\n" + 
                  "  " + CardFactory.get_by_name("The Ardent Adept")[0].to_s + "\n" +
