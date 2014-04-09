@@ -27,6 +27,10 @@ class Power
     end
     chains
    end
+   
+   def is_power?
+    true
+   end
 end
 
 class Action
@@ -46,6 +50,10 @@ class Action
   def invokable_by?(invoke)
     invoke.action_type == @action_type and (invoke.card_type == :Any or invoke.card_type == @card_type)
   end
+
+   def is_power?
+    false
+   end
   
 end
 
@@ -65,8 +73,10 @@ end
 class ActionChain < Array
   def to_s
     out_str = ""
+    indent = 1
     self.each do | action | 
-      out_str += "  " + action.to_s + "\n"
+      out_str += ("  " * indent) + action.to_s + "\n"
+      indent += 1 if action.is_power?
     end
     out_str
   end
