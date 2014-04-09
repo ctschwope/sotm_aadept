@@ -18,6 +18,15 @@ class Power
     @name + ", " + @card_type.to_s + ", " + text 
   end
 
+   def chains_from_actions(actions)
+    chains = []
+    invokable_actions = actions.find_all {| action | action.invokable_by?(@invokes[0]) }
+
+    invokable_actions.each do | action |
+      chains << ActionChain.new([self, action])
+    end
+    chains
+   end
 end
 
 class Action
@@ -54,7 +63,6 @@ class Invoke
 end
 
 class ActionChain < Array
-  
   def to_s
     out_str = ""
     self.each do | action | 
@@ -90,15 +98,10 @@ class ActionChainGenerator
     @chains = []
     return if (@action_list.length == 0 or @power_list.length == 0)
     
-    # assuming single power for a second
-    power = @power_list[0]
-
-    invokable_actions = @action_list.find_all {| action | action.invokable_by?(power.invokes[0]) }
-    
-    invokable_actions.each do | action |
-      @chains << ActionChain.new([power, action])
+    @power_list.each do | power | 
+      @chains = @chains + power.chains_from_actions(@action_list)
     end
-    
+    return 
   end
   
   def invoke_action(action)
@@ -119,7 +122,7 @@ class CardFactory
     @cards = []
     @cards << Power.new("The Ardent Adept", :Character, "Execute Perform text on a card.", [Invoke.new(:Perform)])
     @cards << Power.new("Drake's Pipes", :Instrument, "Activate the Perform text of up to 2 different Melody cards.", 
-                            [Invoke.new(:Perform,:Harmony), Invoke.new(:Perform,:Harmony)])
+                            [Invoke.new(:Perform,:Melody), Invoke.new(:Perform,:Melody)])
     @cards << Power.new("Eydisar's Horn", :Instrument, "Activate the Perform text on a Melody Card and the Accompany text on a Harmony Card.", 
                             [Invoke.new(:Perform,:Melody), Invoke.new(:Accompany,:Harmony)])
     @cards << Power.new("Xu's Bell", :Instrument, "Activate the Perform text on a Rythm Card and the Accompany text on either a Harmony or Rhythm Card.", 
