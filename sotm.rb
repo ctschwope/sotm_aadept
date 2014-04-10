@@ -18,7 +18,28 @@ class Power
     @name + ", " + @card_type.to_s + ", " + text 
   end
 
-   def chains_from_actions(actions)
+  def activations_from(actions)
+    activations = []
+    invokable_actions = []
+
+    @invokes.each do | invoke |
+      invokable_actions << actions.find_all {| action | action.invokable_by?(invoke) }
+    end
+
+    single_invoke = (invokable_actions.length == 1 or invokable_actions[1].length == 0)
+    invokable_actions[0].each do | first_action | 
+      if single_invoke then
+        activations << PowerActivation.new(self, [first_action])
+      else
+        invokable_actions[1].each do | second_action | 
+          activations << PowerActivation.new(self, [first_action, second_action])
+        end
+      end
+    end
+    activations
+  end
+  
+  def chains_from_actions(actions)
     chains = []
     
     invokable_actions = []
@@ -94,8 +115,24 @@ class ActionChain < Array
   end
 end
 
+class PowerActivation 
+  attr_reader :power, :actions
+  
+  def initialize(power, actions = [])
+    @power = power
+    @actions = actions
+  end
+  
+  def to_s
+    out_str = @power.to_s + "\n"
+    @actions.each do | action | 
+      out_str += "  " + action.to_s + "\n"
+    end
+    out_str
+  end
+end
+
 class ActionChainGenerator
-  attr_reader :chains
   
   def initialize(power_list, action_list)
     @power_list = power_list
@@ -103,10 +140,12 @@ class ActionChainGenerator
   end
   
   def to_s
+    generate_chains if @chains.nil?
     return "No Chains Found" if @chains.length == 0
     out_str = ""
     @chains.each_with_index do |chain, index| 
-      out_str += "Chain " + (index + 1).to_s + ":\n" + chain.to_s
+      out_str += "Chain " + (index + 1).to_s + ":\n" 
+      chain.to_s.lines { |line| out_str += "  " + line }
     end
     out_str
   end
@@ -121,7 +160,8 @@ class ActionChainGenerator
     return if (@action_list.length == 0 or @power_list.length == 0)
     
     @power_list.each do | power | 
-      @chains = @chains + power.chains_from_actions(@action_list)
+      @chains = @chains + power.activations_from(@action_list)
+      #@chains = @chains + power.chains_from_actions(@action_list)
     end
     return 
   end
