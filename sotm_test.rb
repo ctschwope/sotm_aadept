@@ -30,6 +30,55 @@ class TestPower < Test::Unit::TestCase
   end
 end
 
+class TestUniqueInvokePower < Test::Unit::TestCase
+
+  def setup
+    @power = CardFactory.get_by_name("Drake's Pipes")[0]
+  end
+  
+  def test_activations_from_actions_single_action
+    actions = CardFactory.get_by_name("Rhapsody of Vigor")
+    activations = @power.activations_from(actions)
+    assert_equal(1, activations.length, "There should be a single activation")
+    activation = activations[0]
+    assert_equal(1, activation.actions.length, "Actions chain should have single item")
+    assert_equal("Drake's Pipes", activation.power.name)
+    assert_equal("Rhapsody of Vigor", activation.actions[0].name)
+  end
+
+  def test_activations_from_actions_two_actions
+    actions = CardFactory.get_by_name("Rhapsody of Vigor") + CardFactory.get_by_name("Sarabande of Destruction")
+    activations = @power.activations_from(actions)
+    assert_equal(4, activations.length, "There should be a four activations")
+    activation = activations[0] 
+    assert_equal("Drake's Pipes", activation.power.name, "Activation 1 power should be drakes pipes")
+    assert_equal(1, activation.actions.length, "Activation 1 should have single item")
+    assert_equal("Rhapsody of Vigor", activation.actions[0].name, "Activation 1 action 1 should be Rhapsody")
+    activation = activations[1] 
+    assert_equal("Drake's Pipes", activation.power.name, "Activation 2 power should be drakes pipes")
+    assert_equal(2, activation.actions.length, "Activation 2 should have single item")
+    assert_equal("Rhapsody of Vigor", activation.actions[0].name, "Activation 2 should have Rhapsody ")
+    assert_equal("Sarabande of Destruction", activation.actions[1].name, "Activation 2 should have Sarabande")
+    activation = activations[2] 
+    assert_equal("Drake's Pipes", activation.power.name, "Activation 3 power should be drakes pipes")
+    assert_equal(2, activation.actions.length, "Activation 3 should have single item")
+    assert_equal("Sarabande of Destruction", activation.actions[0].name, "Activation 3 should have Sarabande")
+    assert_equal("Rhapsody of Vigor", activation.actions[1].name, "Activation 3 should have Rhapsody ")
+    activation = activations[3] 
+    assert_equal("Drake's Pipes", activation.power.name, "Activation 4 power should be drakes pipes")
+    assert_equal(1, activation.actions.length, "Activation 4 should have single item")
+    assert_equal("Sarabande of Destruction", activation.actions[0].name, "Activation 4 should have Sarabande")
+  end
+
+  def test_activations_from_actions_two_actions_plus_bad
+    actions = CardFactory.get_by_name("Rhapsody of Vigor") + CardFactory.get_by_name("Sarabande of Destruction") + CardFactory.get_by_name("Counterpoint Bulwark")
+    activations = @power.activations_from(actions)
+    assert_equal(4, activations.length, "There should be a four activation")
+  end
+  
+end
+
+
 class TestPowerActivation < Test::Unit::TestCase
   def test_to_s_one_action
     power = CardFactory.get_by_name("Drake's Pipes")[0]
@@ -66,9 +115,7 @@ class TestActionChain < Test::Unit::TestCase
         "    " + CardFactory.get_by_name("Sarabande of Destruction")[0].to_s + "\n" ,
       actionChain.to_s)
   end
-
 end
-
 
 class TestAction< Test::Unit::TestCase
 

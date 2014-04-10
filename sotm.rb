@@ -44,6 +44,35 @@ class Power
    end
 end
 
+class UniqueInvokePower < Power
+
+  def activations_from(actions)
+    activations = []
+    invokable_actions = []
+
+    @invokes.each do | invoke |
+      invokable_actions << actions.find_all {| action | action.invokable_by?(invoke) }
+    end
+
+    single_invoke = (invokable_actions.length == 1 or invokable_actions[1].length == 0)
+    
+    invokable_actions[0].each do | first_action | 
+      if single_invoke then
+        activations << PowerActivation.new(self, [first_action])
+      else
+        invokable_actions[1].each do | second_action | 
+          if first_action.name == second_action.name then
+            activations << PowerActivation.new(self, [first_action])
+          else
+            activations << PowerActivation.new(self, [first_action, second_action])
+          end
+        end
+      end
+    end
+    activations
+  end
+end 
+
 class Action
   attr_reader :name, :card_type, :action_type, :text
   
@@ -160,8 +189,8 @@ end
 class CardFactory
   def self.init_action_list
     @cards = []
-    @cards << Power.new("The Ardent Adept", :Character, "Execute Perform text on a card.", [Invoke.new(:Perform)])
-    @cards << Power.new("Drake's Pipes", :Instrument, "Activate the Perform text of up to 2 different Melody cards.", 
+    @cards << UniqueInvokePower.new("The Ardent Adept", :Character, "Execute Perform text on a card.", [Invoke.new(:Perform)])
+    @cards << UniqueInvokePower.new("Drake's Pipes", :Instrument, "Activate the Perform text of up to 2 different Melody cards.", 
                             [Invoke.new(:Perform,:Melody), Invoke.new(:Perform,:Melody)])
     @cards << Power.new("Eydisar's Horn", :Instrument, "Activate the Perform text on a Melody Card and the Accompany text on a Harmony Card.", 
                             [Invoke.new(:Perform,:Melody), Invoke.new(:Accompany,:Harmony)])
@@ -208,19 +237,6 @@ class CardFactory
   def self.get_by_name(name)
     init_action_list if @actions.nil?
     @cards.find_all {|x| x.name == name }
-  end
-end
-
-def SingleRun
-  
-  def initialize
-    @actionHolder = ActionHolder.new
-    @powers = @actionHolder.actions.find_all {|x| x.action_type = :Power }
-    @usedPowers = []
-  end
-
-  def GetRunString
-    
   end
 end
 
