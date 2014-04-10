@@ -18,15 +18,15 @@ class TestPower < Test::Unit::TestCase
     assert_equal("The Ardent Adept, Character, Execute Perform text on a card.", @power.to_s)
   end
 
-  def test_chains_from_actions_single_action
+  def test_activations_from_actions_single_action
     @power = CardFactory.get_by_name("The Ardent Adept")[0]
     actions = [CardFactory.get_by_name("Rhapsody of Vigor")[0]]
-    chains = @power.chains_from_actions(actions)
-    assert_equal(1, chains.length, "There should be a single action chain")
-    action_chain = chains[0]
-    assert_equal(2, action_chain.length, "Action chain should have two items")
-    assert_equal("The Ardent Adept", action_chain[0].name, "First item is power")
-    assert_equal("Rhapsody of Vigor", action_chain[1].name, "Second item is action")
+    activations = @power.activations_from(actions)
+    assert_equal(1, activations.length, "There should be a single activation")
+    activation = activations[0]
+    assert_equal(1, activation.actions.length, "Actions chain should have single item")
+    assert_equal("The Ardent Adept", activation.power.name)
+    assert_equal("Rhapsody of Vigor", activation.actions[0].name)
   end
 end
 

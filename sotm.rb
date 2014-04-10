@@ -1,7 +1,7 @@
 
 # powers invoke actions (1 or 2)
 # an action may queue up a power
-# lets make those seperate things
+# 
 
 
 class Power
@@ -39,28 +39,6 @@ class Power
     activations
   end
   
-  def chains_from_actions(actions)
-    chains = []
-    
-    invokable_actions = []
-
-    @invokes.each do | invoke |
-      invokable_actions << actions.find_all {| action | action.invokable_by?(invoke) }
-    end
-    
-    single_invoke = (invokable_actions.length == 1 or invokable_actions[1].length == 0)
-    invokable_actions[0].each do | first_action | 
-      if single_invoke then
-        chains << ActionChain.new([self, first_action])
-      else
-        invokable_actions[1].each do | second_action | 
-          chains << ActionChain.new([self, first_action, second_action])
-        end
-      end
-    end
-    chains
-   end
-   
    def is_power?
     true
    end
