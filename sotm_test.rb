@@ -80,6 +80,14 @@ end
 
 
 class TestPowerActivation < Test::Unit::TestCase
+  def test_equality
+    power = CardFactory.get_by_name("Drake's Pipes")[0]
+    actions = CardFactory.get_by_name("Rhapsody of Vigor")
+    activation = PowerActivation.new(power, actions)
+    activation2 = PowerActivation.new(power, actions)
+    assert(activation == activation2)
+  end
+  
   def test_to_s_one_action
     power = CardFactory.get_by_name("Drake's Pipes")[0]
     actions = CardFactory.get_by_name("Rhapsody of Vigor")
@@ -279,32 +287,76 @@ class TestActionChainGenerator < Test::Unit::TestCase
     assert_equal( string_val, actionChainGenerator.to_s)               
   end
 
-  # def test_one_power_with_two_invokes_drake_pipe_details
-    # powers = [] + CardFactory.get_by_name("Drake's Pipes") 
-    # actions = [] + CardFactory.get_by_name("Sarabande of Destruction")
-    # actionChainGenerator = ActionChainGenerator.new(powers, actions)
-    # assert_equal(1, actionChainGenerator.chains.length, "There should be a single action chain")
-    # action_chain = actionChainGenerator.chains[0]
-    # assert_equal(3, action_chain.length, "First Action chain should have four items")
-    # string_val = "Chain 1:\n" + 
-                 # "  " + CardFactory.get_by_name("Drake's Pipes")[0].to_s + "\n" +
-                 # "    " + CardFactory.get_by_name("Sarabande of Destruction")[0].to_s + "\n" 
-    # assert_equal( string_val, actionChainGenerator.to_s)
-  # end
+  def test_one_power_with_two_invokes_drake_pipe_details
+    powers = [] + CardFactory.get_by_name("Drake's Pipes") 
+    actions = [] + CardFactory.get_by_name("Sarabande of Destruction")
+    actionChainGenerator = ActionChainGenerator.new(powers, actions)
+    string_val = "Chain 1:\n" + 
+                 "  " + CardFactory.get_by_name("Drake's Pipes")[0].to_s + "\n" +
+                 "    " + CardFactory.get_by_name("Sarabande of Destruction")[0].to_s + "\n" 
+    assert_equal( string_val, actionChainGenerator.to_s)
+  end
   
-  # def test_two_power_with_two_invokes_drake_pipe_details
-    # powers = [] + CardFactory.get_by_name("Drake's Pipes") + CardFactory.get_by_name("The Ardent Adept")
-    # actions = [] + CardFactory.get_by_name("Sarabande of Destruction")
-    # actionChainGenerator = ActionChainGenerator.new(powers, actions)
-    # assert_equal(2, actionChainGenerator.chains.length, "There should be a two action chains")
-    # string_val = "Chain 1:\n" + 
-                 # "  " + CardFactory.get_by_name("Drake's Pipes")[0].to_s + "\n" +
-                 # "    " + CardFactory.get_by_name("Sarabande of Destruction")[0].to_s + "\n" +
-                # "Chain 2:\n" + 
-                 # "  " + CardFactory.get_by_name("The Ardent Adept")[0].to_s + "\n" +
-                 # "    " + CardFactory.get_by_name("Sarabande of Destruction")[0].to_s + "\n"
-    # assert_equal( string_val, actionChainGenerator.to_s)
-    # print "\n" + actionChainGenerator.to_s + "\n"
-  # end
+  def test_two_power_with_two_invokes_drake_pipe_details
+    powers = [] + CardFactory.get_by_name("Drake's Pipes") + CardFactory.get_by_name("The Ardent Adept")
+    actions = [] + CardFactory.get_by_name("Sarabande of Destruction")
+    actionChainGenerator = ActionChainGenerator.new(powers, actions)
+    assert_equal(2, actionChainGenerator.chains.length, "There should be a two action chains")
+    string_val = "Chain 1:\n" + 
+                 "  " + CardFactory.get_by_name("Drake's Pipes")[0].to_s + "\n" +
+                 "    " + CardFactory.get_by_name("Sarabande of Destruction")[0].to_s + "\n" +
+                "Chain 2:\n" + 
+                 "  " + CardFactory.get_by_name("The Ardent Adept")[0].to_s + "\n" +
+                 "    " + CardFactory.get_by_name("Sarabande of Destruction")[0].to_s + "\n"
+    assert_equal( string_val, actionChainGenerator.to_s)
+  end
 
+  def test_ardent_adept_all_melodies_plus_one
+    powers = [] + CardFactory.get_by_name("The Ardent Adept") 
+    actions = ([] + CardFactory.get_by_card_type(:Melody) +  CardFactory.get_by_name("Cedistic Dissonant")).sort
+    actionChainGenerator = ActionChainGenerator.new(powers, actions)
+    assert_equal(4, actionChainGenerator.chains.length, "There should be a 3 action chains")
+    string_val = "Chain 1:\n" + 
+                 "  " + CardFactory.get_by_name("The Ardent Adept")[0].to_s + "\n" +
+                 "    " + CardFactory.get_by_name("Cedistic Dissonant")[0].to_s + "\n" +
+                "Chain 2:\n" + 
+                 "  " + CardFactory.get_by_name("The Ardent Adept")[0].to_s + "\n" +
+                 "    " + CardFactory.get_by_name("Rhapsody of Vigor")[0].to_s + "\n" +
+                "Chain 3:\n" + 
+                 "  " + CardFactory.get_by_name("The Ardent Adept")[0].to_s + "\n" +
+                 "    " + CardFactory.get_by_name("Sarabande of Destruction")[0].to_s + "\n" +
+                "Chain 4:\n" + 
+                 "  " + CardFactory.get_by_name("The Ardent Adept")[0].to_s + "\n" +
+                 "    " + CardFactory.get_by_name("Scherzo of Frost and Flame")[0].to_s + "\n"
+    assert_equal( string_val, actionChainGenerator.to_s)
+  end
+
+  def test_drakes_pipes_all_melodies
+    powers = [] + CardFactory.get_by_name("Drake's Pipes")
+    actions = ([] + CardFactory.get_by_card_type(:Melody) ).sort 
+    actionChainGenerator = ActionChainGenerator.new(powers, actions)
+    assert_equal(9, actionChainGenerator.chains.length, "There should be a 9 action chains")
+    assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[0]]) )
+    assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[0],actions[1]]) )
+    assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[0],actions[2]]) )
+    assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[1]]) )
+    assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[1],actions[0]]) )
+    assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[1],actions[2]]) )
+    assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[2]]) )
+    assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[2],actions[0]]) )
+    assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[2],actions[1]]) )
+  end
+
+  def test_eydisars_horn_melody_plus_accompany_harmony
+    powers = [] + CardFactory.get_by_name("Eydisar's Horn")  
+    actions = (CardFactory.get_by_name("Alacritous Subdominant") + CardFactory.get_by_name("Sarabande of Destruction") ).sort
+    # order will be AS perform, AS accompany, SD perform
+    actionChainGenerator = ActionChainGenerator.new(powers, actions)
+    print "\n" + actionChainGenerator.to_s + "\n"
+    assert_equal(3, actionChainGenerator.chains.length, "There should be a 3 action chains")
+    assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[1]]) )
+    assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[2]]) )
+    assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[2],actions[1]]) )
+  end
+  
 end
