@@ -178,7 +178,7 @@ class CardFactory
                             [Invoke.new(:Perform,:Melody), Invoke.new(:Perform,:Melody)])
     @powers << UniqueInvokePower.new("Eydisar's Horn", :Instrument, "Activate the Perform text on a Melody Card and the Accompany text on a Harmony Card.", 
                             [Invoke.new(:Perform,:Melody), Invoke.new(:Accompany,:Harmony)])
-    @powers << Power.new("Xu's Bell", :Instrument, "Activate the Perform text on a Rythm Card and the Accompany text on either a Harmony or Rhythm Card.", 
+    @powers << UniqueInvokePower.new("Xu's Bell", :Instrument, "Activate the Perform text on a Rythm Card and the Accompany text on either a Harmony or Rhythm Card.", 
                             [Invoke.new(:Perform,:Rhythm), Invoke.new(:Accompany,:HarmonyOrRythm)])
     @powers << UniqueInvokePower.new("Musargni's Harp", :Instrument, "Activate the Perform text on a Harmony Card and the Accompany text on a Harmony Card.", 
                             [Invoke.new(:Perform,:Harmony), Invoke.new(:Accompany,:Harmony)])
@@ -205,8 +205,8 @@ class CardFactory
 
     @actions << Action.new("Scherzo of Frost and Flame", :Melody, :Perform, "The Ardent Adept deals one target 1 cold damage, then deals 1 target 1 fire damage.") 
 
-    @actions << Action.new("Inventive preparation", :Rhythm, :Perform, "Each player may look at the top card of their hero deck then replace or discard it.")
-    @actions << Action.new("Inventive preparation", :Rhythm, :Accompany, "One player other than you may play 1 card now.")
+    @actions << Action.new("Inventive Preparation", :Rhythm, :Perform, "Each player may look at the top card of their hero deck then replace or discard it.")
+    @actions << Action.new("Inventive Preparation", :Rhythm, :Accompany, "One player other than you may play 1 card now.")
 
     @actions << Action.new("Cedistic Dissonant", :Harmony, :Perform, "Destroy an instrument. If you do, destroy and 1 card in play other than a character card.")
     @actions << Action.new("Cedistic Dissonant", :Harmony, :Accompany, "Discard 2 cards. Draw 3 cards.")

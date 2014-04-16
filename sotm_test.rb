@@ -384,11 +384,23 @@ class TestActionChainGenerator < Test::Unit::TestCase
                             [Invoke.new(:Perform,:Harmony), Invoke.new(:Accompany,:Harmony)]) ]
     actions = (CardFactory.get_by_name("Inspiring Supertonic") + CardFactory.get_by_name("Cedistic Dissonant") ).sort
     actionChainGenerator = ActionChainGenerator.new(powers, actions)
-    assert_equal(4, actionChainGenerator.chains.length, "There should be a 3 action chains")
+    assert_equal(4, actionChainGenerator.chains.length, "There should be a 4 action chains")
     assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[0],actions[1]]) )
     assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[0],actions[3]]) )
     assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[2],actions[1]]) )
     assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[2],actions[3]]) )
+  end
+
+  def test_xus_bell_or_condition
+    powers = [UniqueInvokePower.new("Xu's Bell", :Instrument, "Activate the Perform text on a Rythm Card and the Accompany text on either a Harmony or Rhythm Card.", 
+                            [Invoke.new(:Perform,:Rhythm), Invoke.new(:Accompany,:HarmonyOrRythm)]) ]
+    actions = ( CardFactory.get_by_name("Cedistic Dissonant") + CardFactory.get_by_name("Inventive Preparation")).sort
+    actionChainGenerator = ActionChainGenerator.new(powers, actions)
+    print "\n" + actionChainGenerator.to_s + "\n"
+    assert_equal(2, actionChainGenerator.chains.length, "There should be a 2 action chains")
+    assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[2],actions[1]]), "Should include IP Perform and CD Accompany" ) 
+    assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[2],actions[3]]), "Should include IP Perform and IP Accompany" ) 
+    
   end
   
 end
