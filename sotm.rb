@@ -45,6 +45,14 @@ end
 
 class UniqueInvokePower < Power
 
+  def activations_from_single_invokable_list(invokable_actions)
+    activations = []
+    invokable_actions.each do | action | 
+      activations << PowerActivation.new(self, [action])
+    end
+    activations
+  end
+  
   def activations_from(actions)
     activations = []
     invokable_actions = []
@@ -52,13 +60,13 @@ class UniqueInvokePower < Power
     @invokes.each do | invoke |
       invokable_actions << actions.find_all {| action | action.invokable_by?(invoke) }
     end
-
-    single_invoke = (invokable_actions.length == 1 or invokable_actions[1].length == 0)
     
-    invokable_actions[0].each do | first_action | 
-      if single_invoke then
-        activations << PowerActivation.new(self, [first_action])
-      else
+    if (@invokes.length == 1 or invokable_actions[1].length == 0) then
+      activations = activations_from_single_invokable_list(invokable_actions[0])
+    elsif (invokable_actions[0].length == 0) then
+      activations = activations_from_single_invokable_list(invokable_actions[1])
+    else
+      invokable_actions[0].each do | first_action | 
         invokable_actions[1].each do | second_action | 
           if first_action == second_action then
             activations << PowerActivation.new(self, [first_action])
@@ -203,12 +211,12 @@ class CardFactory
     @powers << UniqueInvokePower.new("Eydisar's Horn", :Instrument, "Activate the Perform text on a Melody Card and the Accompany text on a Harmony Card.", 
                             [Invoke.new(:Perform,:Melody), Invoke.new(:Accompany,:Harmony)])
     @powers << Power.new("Xu's Bell", :Instrument, "Activate the Perform text on a Rythm Card and the Accompany text on either a Harmony or Rhythm Card.", 
-                            [Invoke.new(:Perform,:Rhythm), Invoke.new(:Accompany,:HarmonyRythm)])
-    @powers << Power.new("Musargni's Harp", :Instrument, "Activate the Perform text on a Harmony Card and the Accompany text on a Harmony Card.", 
+                            [Invoke.new(:Perform,:Rhythm), Invoke.new(:Accompany,:HarmonyOrRythm)])
+    @powers << UniqueInvokePower.new("Musargni's Harp", :Instrument, "Activate the Perform text on a Harmony Card and the Accompany text on a Harmony Card.", 
                             [Invoke.new(:Perform,:Harmony), Invoke.new(:Accompany,:Harmony)])
-    @powers << Power.new("Telamon's Lyra", :Instrument, "Activate the Perform text on a Harmony Card and the Accompany text on a Rhythm Card.", 
+    @powers << UniqueInvokePower.new("Telamon's Lyra", :Instrument, "Activate the Perform text on a Harmony Card and the Accompany text on a Rhythm Card.", 
                             [Invoke.new(:Perform,:Harmony), Invoke.new(:Accompany,:Rythm)])
-    @powers << Power.new("Akpunku's Drum", :Instrument, "Activate the Accompany text on a Rhythm Card and the Perform text on a Melody Card.", 
+    @powers << UniqueInvokePower.new("Akpunku's Drum", :Instrument, "Activate the Accompany text on a Rhythm Card and the Perform text on a Melody Card.", 
                             [Invoke.new(:Accompany,:Rythm), Invoke.new(:Perform,:Melody)])
                             
     @powers = @powers.sort

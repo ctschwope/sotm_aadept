@@ -75,6 +75,30 @@ class TestUniqueInvokePower < Test::Unit::TestCase
     activations = @power.activations_from(actions)
     assert_equal(4, activations.length, "There should be a four activation")
   end
+
+  def test_activation_for_only_accompany
+    @power = UniqueInvokePower.new("Eydisar's Horn", :Instrument, "Activate the Perform text on a Melody Card and the Accompany text on a Harmony Card.", 
+                            [Invoke.new(:Perform,:Melody), Invoke.new(:Accompany,:Harmony)])
+    actions = [Action.new("Alacritous Subdominant", :Harmony, :Accompany, "You may use a power now. If you do, destroy this card.") ]
+    activations = @power.activations_from(actions)              
+    assert_equal(1, activations.length, "Should be 1 activation")
+    activation = activations[0] 
+    assert_equal(1, activation.actions.length, "Activation should have single item")
+    assert_equal("Alacritous Subdominant", activation.actions[0].name, "Activation hould have Alacritous Subdominan")
+  end
+
+  def test_activation_for_perform_plus_accompany
+    @power = UniqueInvokePower.new("Eydisar's Horn", :Instrument, "Activate the Perform text on a Melody Card and the Accompany text on a Harmony Card.", 
+                            [Invoke.new(:Perform,:Melody), Invoke.new(:Accompany,:Harmony)])
+    actions = [Action.new("Rhapsody of Vigor", :Melody, :Perform, "Up to 5 targets regain 1 HP each."),
+                Action.new("Alacritous Subdominant", :Harmony, :Accompany, "You may use a power now. If you do, destroy this card.") ]
+    activations = @power.activations_from(actions)              
+    assert_equal(1, activations.length, "Should b 3 activations")
+    activation = activations[0] 
+    assert_equal(2, activation.actions.length, "Activation should have two item")
+    assert_equal("Rhapsody of Vigor", activation.actions[0].name, "Activation should have Rhapsody of Vigor")
+    assert_equal("Alacritous Subdominant", activation.actions[1].name, "Activation should have Alacritous Subdominan")
+  end
   
 end
 
@@ -349,14 +373,22 @@ class TestActionChainGenerator < Test::Unit::TestCase
 
   def test_eydisars_horn_melody_plus_accompany_harmony
     powers = [] + CardFactory.get_by_name("Eydisar's Horn")  
-    actions = (CardFactory.get_by_name("Alacritous Subdominant") + CardFactory.get_by_name("Sarabande of Destruction") ).sort
-    # order will be AS perform, AS accompany, SD perform
+    actions = (CardFactory.get_by_name("Cedistic Dissonant") + CardFactory.get_by_name("Sarabande of Destruction") ).sort
     actionChainGenerator = ActionChainGenerator.new(powers, actions)
-    print "\n" + actionChainGenerator.to_s + "\n"
-    assert_equal(3, actionChainGenerator.chains.length, "There should be a 3 action chains")
-    assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[1]]) )
-    assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[2]]) )
+    assert_equal(1, actionChainGenerator.chains.length, "There should be a 3 action chains")
     assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[2],actions[1]]) )
+  end
+
+  def test_musargnis_harp_mulitple_options
+    powers = [UniqueInvokePower.new("Musargni's Harp", :Instrument, "Activate the Perform text on a Harmony Card and the Accompany text on a Harmony Card.", 
+                            [Invoke.new(:Perform,:Harmony), Invoke.new(:Accompany,:Harmony)]) ]
+    actions = (CardFactory.get_by_name("Inspiring Supertonic") + CardFactory.get_by_name("Cedistic Dissonant") ).sort
+    actionChainGenerator = ActionChainGenerator.new(powers, actions)
+    assert_equal(4, actionChainGenerator.chains.length, "There should be a 3 action chains")
+    assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[0],actions[1]]) )
+    assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[0],actions[3]]) )
+    assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[2],actions[1]]) )
+    assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[2],actions[3]]) )
   end
   
 end
