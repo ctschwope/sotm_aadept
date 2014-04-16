@@ -13,27 +13,6 @@ class Power
     @name + ", " + @card_type.to_s + ", " + text 
   end
 
-  def activations_from(actions)
-    activations = []
-    invokable_actions = []
-
-    @invokes.each do | invoke |
-      invokable_actions << actions.find_all {| action | action.invokable_by?(invoke) }
-    end
-
-    single_invoke = (invokable_actions.length == 1 or invokable_actions[1].length == 0)
-    invokable_actions[0].each do | first_action | 
-      if single_invoke then
-        activations << PowerActivation.new(self, [first_action])
-      else
-        invokable_actions[1].each do | second_action | 
-          activations << PowerActivation.new(self, [first_action, second_action])
-        end
-      end
-    end
-    activations
-  end
-  
    def is_power?
     true
    end
@@ -184,21 +163,10 @@ class ActionChainGenerator
     
     @power_list.each do | power | 
       @chains = @chains + power.activations_from(@action_list)
-      #@chains = @chains + power.chains_from_actions(@action_list)
     end
     return 
   end
-  
-  # def invoke_action(action)
-    # action_list_minus_current = @action_list.reject { | x | x == action }
-    # next_act_chain = ActionChainGenerator.new(action_list_minus_current, action.invokes)
-    # next_act_chain.generate_chains
-    # if next_act_chain.chains.length == 0 then
-      # @chains << ActionChain.new([action])
-    # else
-      # next_act_chain.chains.each { | x |  @chains << ActionChain.new([action] + x) }
-    # end
-  # end
+ 
 end
 
 
