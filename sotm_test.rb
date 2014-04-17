@@ -421,4 +421,17 @@ class TestActionChainGenerator < Test::Unit::TestCase
       assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [action])) if action.action_type == :Perform
     end
   end
+  
+  def test_cascade_power_activation
+    powers = [ UniqueInvokePower.new("The Ardent Adept", :Character, "Execute Perform text on a card.", [Invoke.new(:Perform)]) , 
+               UniqueInvokePower.new("Eydisar's Horn", :Instrument, "Activate the Perform text on a Melody Card and the Accompany text on a Harmony Card.", 
+                            [Invoke.new(:Perform,:Melody), Invoke.new(:Accompany,:Harmony)]) ]
+    actions = [Action.new("Inspiring Supertonic", :Harmony, :Perform, "One player may us a power now."),
+               Action.new("Inspiring Supertonic", :Harmony, :Accompany, "The Ardent Adept regains 2 HP."),
+               Action.new("Rhapsody of Vigor", :Melody, :Perform, "Up to 5 targets regain 1 HP each.")]
+    actionChainGenerator = ActionChainGenerator.new(powers, actions)
+    # print "\n" + actionChainGenerator.to_s + "\n"
+    # AA->RV; AA->IS(self EH->RV); AA->IS(other hero); EH->RV,IS; 
+    assert_equal(4, actionChainGenerator.chains.length, "There are six possible chains")
+  end
 end

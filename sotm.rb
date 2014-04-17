@@ -80,7 +80,7 @@ class Action
   def is_power?
     false
   end
-  def <=>(other)
+  def <=>(other)   
     return @name <=> other.name if @name != other.name 
     return 0 if (@action_type == other.action_type)
     @action_type == :Perform ? -1 : 1 
