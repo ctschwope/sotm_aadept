@@ -432,6 +432,6 @@ class TestActionChainGenerator < Test::Unit::TestCase
     actionChainGenerator = ActionChainGenerator.new(powers, actions)
     # print "\n" + actionChainGenerator.to_s + "\n"
     # AA->RV; AA->IS(self EH->RV); AA->IS(other hero); EH->RV,IS; 
-    assert_equal(4, actionChainGenerator.chains.length, "There are six possible chains")
+    assert_equal(4, actionChainGenerator.chains.length, "There are four possible chains")
   end
 end
