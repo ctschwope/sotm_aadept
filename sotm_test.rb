@@ -182,6 +182,17 @@ class TestAction< Test::Unit::TestCase
   end
 end
 
+class TestMultiCardTypeInvoke < Test::Unit::TestCase
+
+  def test_can_invoke
+    invoke = MultiCardTypeInvoke.new(:Accompany,[:Harmony,:Rhythm])
+    action = Action.new("Alacritous Subdominant", :Harmony, :Accompany, "You may use a power now. If you do, destroy this card.")
+    assert(invoke.can_invoke?(action), "Can invoke Harmony Accompany")
+    action = Action.new("Inventive Preparation", :Rhythm, :Accompany, "One player other than you may play 1 card now.")
+    assert(invoke.can_invoke?(action), "Can invoke Rhythm Accompany")
+  end
+end
+
 class TestActionChainGenerator < Test::Unit::TestCase
 
   def test_no_power_no_action_is_empty
@@ -392,15 +403,13 @@ class TestActionChainGenerator < Test::Unit::TestCase
   end
 
   def test_xus_bell_or_condition
-    powers = [UniqueInvokePower.new("Xu's Bell", :Instrument, "Activate the Perform text on a Rythm Card and the Accompany text on either a Harmony or Rhythm Card.", 
-                            [Invoke.new(:Perform,:Rhythm), Invoke.new(:Accompany,:HarmonyOrRythm)]) ]
+    powers = [UniqueInvokePower.new("Xu's Bell", :Instrument, "Activate the Perform text on a Rhythm Card and the Accompany text on either a Harmony or Rhythm Card.", 
+                            [Invoke.new(:Perform,:Rhythm), MultiCardTypeInvoke.new(:Accompany, [:Harmony, :Rhythm])])]
     actions = ( CardFactory.get_by_name("Cedistic Dissonant") + CardFactory.get_by_name("Inventive Preparation")).sort
     actionChainGenerator = ActionChainGenerator.new(powers, actions)
-    print "\n" + actionChainGenerator.to_s + "\n"
     assert_equal(2, actionChainGenerator.chains.length, "There should be a 2 action chains")
     assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[2],actions[1]]), "Should include IP Perform and CD Accompany" ) 
     assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[2],actions[3]]), "Should include IP Perform and IP Accompany" ) 
-    
   end
   
 end

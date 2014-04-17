@@ -74,7 +74,7 @@ class Action
   end
   
   def invokable_by?(invoke)
-    invoke.action_type == @action_type and (invoke.card_type == :Any or invoke.card_type == @card_type)
+    return invoke.can_invoke?(self)
   end
 
   def is_power?
@@ -99,7 +99,31 @@ class Invoke
   def to_s
     @action_type.to_s + " - " + @card_type.to_s
   end
+  
+  def can_invoke?(action)
+    action.action_type == @action_type and
+      (@card_type == :Any or @card_type == action.card_type)
+  end
 end
+
+class MultiCardTypeInvoke
+  attr_reader :action_type, :card_types
+  
+  def initialize(action_type, card_types = [:Any])
+    @action_type = action_type
+    @card_types = card_types
+  end
+  
+  def to_s
+    @action_type.to_s + " - " + @card_types.to_s
+  end
+  
+  def can_invoke?(action)
+    action.action_type == @action_type and
+      (@card_type == :Any or @card_types.include?(action.card_type))
+  end
+end
+
 
 class ActionChain < Array
   def to_s
@@ -179,13 +203,13 @@ class CardFactory
     @powers << UniqueInvokePower.new("Eydisar's Horn", :Instrument, "Activate the Perform text on a Melody Card and the Accompany text on a Harmony Card.", 
                             [Invoke.new(:Perform,:Melody), Invoke.new(:Accompany,:Harmony)])
     @powers << UniqueInvokePower.new("Xu's Bell", :Instrument, "Activate the Perform text on a Rythm Card and the Accompany text on either a Harmony or Rhythm Card.", 
-                            [Invoke.new(:Perform,:Rhythm), Invoke.new(:Accompany,:HarmonyOrRythm)])
+                            [Invoke.new(:Perform,:Rhythm), MultiCardTypeInvoke.new(:Accompany, [:Harmony, :Rhythm])])
     @powers << UniqueInvokePower.new("Musargni's Harp", :Instrument, "Activate the Perform text on a Harmony Card and the Accompany text on a Harmony Card.", 
                             [Invoke.new(:Perform,:Harmony), Invoke.new(:Accompany,:Harmony)])
     @powers << UniqueInvokePower.new("Telamon's Lyra", :Instrument, "Activate the Perform text on a Harmony Card and the Accompany text on a Rhythm Card.", 
-                            [Invoke.new(:Perform,:Harmony), Invoke.new(:Accompany,:Rythm)])
+                            [Invoke.new(:Perform,:Harmony), Invoke.new(:Accompany,:Rhythm)])
     @powers << UniqueInvokePower.new("Akpunku's Drum", :Instrument, "Activate the Accompany text on a Rhythm Card and the Perform text on a Melody Card.", 
-                            [Invoke.new(:Accompany,:Rythm), Invoke.new(:Perform,:Melody)])
+                            [Invoke.new(:Accompany,:Rhythm), Invoke.new(:Perform,:Melody)])
                             
     @powers = @powers.sort
     
