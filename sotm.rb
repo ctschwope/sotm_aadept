@@ -257,5 +257,9 @@ class CardFactory
   def self.get_by_card_type(card_type)
     @actions.find_all {|x| x.card_type == card_type }.sort
   end
+  
+  def self.actions
+    @actions.sort
+  end
 
 end

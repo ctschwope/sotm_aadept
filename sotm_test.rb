@@ -412,4 +412,13 @@ class TestActionChainGenerator < Test::Unit::TestCase
     assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[2],actions[3]]), "Should include IP Perform and IP Accompany" ) 
   end
   
+  def test_base_with_all_actions
+    powers = [] + CardFactory.get_by_name("The Ardent Adept") 
+    actions = CardFactory.actions
+    actionChainGenerator = ActionChainGenerator.new(powers, actions)
+    assert_equal(9, actionChainGenerator.chains.length, "There should be a 9 action chains")
+    actions.each do | action |
+      assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [action])) if action.action_type == :Perform
+    end
+  end
 end
