@@ -129,6 +129,26 @@ class TestPowerActivation < Test::Unit::TestCase
         "  " + CardFactory.get_by_name("Sarabande of Destruction")[0].to_s + "\n"
     assert_equal(string_val, activation.to_s)
   end
+  
+  def test_chained_activation_for_missing
+    power = CardFactory.get_by_name("The Ardent Adept")[0]
+    actions = CardFactory.get_by_name("Inspiring Supertonic")
+    activation = PowerActivation.new(power, actions)
+    activation.add_chained_activation(actions[0], 
+                PowerActivation.new(CardFactory.get_by_name("Drake's Pipes")[0], CardFactory.get_by_name("Rhapsody of Vigor") + CardFactory.get_by_name("Sarabande of Destruction")))
+    assert_nil(activation.chained_activation_for(Action.new("Alacritous Subdominant", :Harmony, :Perform, "One player may play 1 card now.")), "Nil when not a good action")
+  end
+  
+  def test_chained_activation_for_matches
+    power = CardFactory.get_by_name("The Ardent Adept")[0]
+    actions = [CardFactory.get_by_name("Inspiring Supertonic")[0]]
+    chained_activation = PowerActivation.new(CardFactory.get_by_name("Drake's Pipes")[0], 
+            CardFactory.get_by_name("Rhapsody of Vigor") + CardFactory.get_by_name("Sarabande of Destruction"))
+    activation = PowerActivation.new(power, actions)
+    activation.add_chained_activation(actions[0], chained_activation)
+    assert_equal(chained_activation, activation.chained_activation_for(actions[0]), "activation should match")
+  end
+
 end
 
 class TestActionChain < Test::Unit::TestCase
@@ -431,7 +451,13 @@ class TestActionChainGenerator < Test::Unit::TestCase
                Action.new("Rhapsody of Vigor", :Melody, :Perform, "Up to 5 targets regain 1 HP each.")]
     actionChainGenerator = ActionChainGenerator.new(powers, actions)
     # print "\n" + actionChainGenerator.to_s + "\n"
-    # AA->RV; AA->IS(self EH->RV); AA->IS(other hero); EH->RV,IS; 
+    # AA->RV; AA->IS(self EH->RV,IS); AA->IS(other hero); EH->RV,IS; 
     assert_equal(4, actionChainGenerator.chains.length, "There are four possible chains")
+    assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[2]]), "Should include Ardent Adept invoke Rhapsody" ) 
+    assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[1], [actions[2], actions[1]]), "Should include Eydisar Horn invoke Rhapsody perfom and Insipiring accompany" ) 
+    # not sure how to do this yet.... 
+    # assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], 
+                                        # [actions[3]]), "Should include Ardent Adept invoke Eydisar Horn invoke Rhapsody perfom and Insipiring accompany" ) 
+    # assert_includes(actionChainGenerator.chains, PowerActivation.new(powers[0], [actions[3]]), "Should include Ardent Adept invoke Rhapsody" ) 
   end
 end

@@ -138,11 +138,12 @@ class ActionChain < Array
 end
 
 class PowerActivation 
-  attr_reader :power, :actions
+  attr_reader :power, :actions, :chained_activations
   
-  def initialize(power, actions = [])
+  def initialize(power, actions = [], chained_activations = {})
     @power = power
     @actions = actions
+    @chained_activations = chained_activations
   end
   
   def to_s
@@ -154,7 +155,18 @@ class PowerActivation
   end
   
   def ==(other)
-    @power == other.power and @actions == other.actions
+    @power == other.power and @actions == other.actions and @chained_activations == other.chained_activations
+  end
+  
+  def add_chained_activation(action, activation)
+    if (@actions.include?(action)) then
+      @chained_activations[action] = activation
+    end
+  end
+
+  def chained_activation_for(action)
+    return nil if not @actions.include?(action) 
+    @chained_activations[action]
   end
 end
 
